@@ -100,7 +100,7 @@ describe("GET /hotels", () => {
           id: createdHotel.id,
           name: createdHotel.name,
           image: createdHotel.image,
-          capacity: expect.any(Number),
+          availableRooms: expect.any(Number),
           createdAt: createdHotel.createdAt.toISOString(),
           updatedAt: createdHotel.updatedAt.toISOString()
         }
@@ -217,6 +217,7 @@ describe("GET /hotels/:hotelId", () => {
           name: createdRoom.name,
           capacity: createdRoom.capacity,
           hotelId: createdHotel.id,
+          guests: expect.any(Number),
           createdAt: createdRoom.createdAt.toISOString(),
           updatedAt: createdRoom.updatedAt.toISOString(),
         }]
