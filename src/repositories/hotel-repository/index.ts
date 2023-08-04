@@ -5,15 +5,23 @@ async function findHotels() {
     include: { Rooms: { include: { Booking: { select: { id: true } } } } },
   });
 
-  const availableRooms = hotels.map((hotel) => {
+  const availableRooms: number[] = [];
+  const availableTypes: number[][] = [];
+
+  hotels.forEach((hotel) => {
     const totalCapacity = hotel.Rooms.reduce((acc, cur) => acc + cur.capacity, 0);
     const guests = hotel.Rooms.reduce((acc, cur) => acc + cur.Booking.length, 0);
-    return totalCapacity - guests;
+    const capacities = [...new Set(hotel.Rooms.map((room) => room.capacity))].sort((a, b) => a - b);
+    availableRooms.push(totalCapacity - guests);
+    availableTypes.push(capacities);
+    delete hotel.Rooms;
   });
 
-  hotels.forEach((hotel) => delete hotel.Rooms);
-
-  return hotels.map((hotel, index) => ({ ...hotel, availableRooms: availableRooms[index] }));
+  return hotels.map((hotel, index) => ({
+    ...hotel,
+    availableRooms: availableRooms[index],
+    availableTypes: availableTypes[index],
+  }));
 }
 
 async function findRoomsByHotelId(hotelId: number) {

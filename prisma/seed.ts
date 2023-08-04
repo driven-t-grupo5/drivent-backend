@@ -3,7 +3,6 @@ import dayjs from 'dayjs';
 import bcrypt from 'bcrypt';
 import { faker } from '@faker-js/faker';
 import { generateCPF, getStates } from '@brazilian-utils/brazilian-utils';
-import { options } from 'joi';
 
 const prisma = new PrismaClient();
 
@@ -22,11 +21,18 @@ async function createEvent() {
   });
 }
 
+function getCapacityFromRoomNumber(roomNumber: number) {
+  if (roomNumber <= 105) return 1;
+  if (roomNumber > 200) return 3;
+  return 2;
+}
+
 function getRooms() {
   const roomNumberMapper = (n: number, index: number) => {
+    const roomNumber = n + index;
     return {
-      name: (n + index).toString(),
-      capacity: 3,
+      name: roomNumber.toString(),
+      capacity: getCapacityFromRoomNumber(roomNumber),
     };
   };
 
@@ -41,7 +47,7 @@ async function createHotels() {
 
   const images = [
     'https://media-cdn.tripadvisor.com/media/photo-s/16/1a/ea/54/hotel-presidente-4s.jpg',
-    'https://forbes.com.br/wp-content/uploads/2022/02/Life_Forbes-Travel-Guide-os-40-melhores-hoteis-que-chegam-em-2022-768x512.jpg',
+    'https://www.ahstatic.com/photos/c096_ho_00_p_1024x768.jpg',
   ];
 
   const hotels = images.map((image, index) => {
