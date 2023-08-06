@@ -1,15 +1,21 @@
-import { prisma } from "@/config";
-import { Booking } from "@prisma/client";
+import { prisma } from '@/config';
+import { Booking } from '@prisma/client';
 
-type CreateParams = Omit<Booking, "id" | "createdAt" | "updatedAt">;
-type UpdateParams = Omit<Booking, "createdAt" | "updatedAt">;
+type CreateParams = Omit<Booking, 'id' | 'createdAt' | 'updatedAt'>;
+type UpdateParams = Omit<Booking, 'createdAt' | 'updatedAt'>;
 
-async function create({ roomId, userId }: CreateParams): Promise<Booking> {
+async function create({ roomId, userId }: CreateParams) {
   return prisma.booking.create({
     data: {
       roomId,
       userId,
-    }
+    },
+    select: {
+      id: true,
+      roomId: true,
+      userId: true,
+      Room: { select: { hotelId: true } },
+    },
   });
 }
 
@@ -18,9 +24,12 @@ async function findByRoomId(roomId: number) {
     where: {
       roomId,
     },
-    include: {
-      Room: true,
-    }
+    select: {
+      id: true,
+      roomId: true,
+      userId: true,
+      Room: { select: { hotelId: true } },
+    },
   });
 }
 
@@ -29,9 +38,12 @@ async function findByUserId(userId: number) {
     where: {
       userId,
     },
-    include: {
-      Room: true,
-    }
+    select: {
+      id: true,
+      roomId: true,
+      userId: true,
+      Room: { select: { hotelId: true } },
+    },
   });
 }
 
@@ -46,7 +58,13 @@ async function upsertBooking({ id, roomId, userId }: UpdateParams) {
     },
     update: {
       roomId,
-    }
+    },
+    select: {
+      id: true,
+      roomId: true,
+      userId: true,
+      Room: { select: { hotelId: true } },
+    },
   });
 }
 
