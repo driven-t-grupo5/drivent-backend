@@ -5,10 +5,18 @@ import enrollmentRepository from "@/repositories/enrollment-repository";
 import tikectRepository from "@/repositories/ticket-repository";
 
 async function checkEnrollmentTicket(userId: number) {
+  const booking = await bookingRepository.findByUserId(userId);
+
+  if (booking) {
+    throw cannotBookingError();
+  }
+
   const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
+
   if (!enrollment) {
     throw cannotBookingError();
   }
+
   const ticket = await tikectRepository.findTicketByEnrollmentId(enrollment.id);
 
   if (!ticket || ticket.status === "RESERVED" || ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
