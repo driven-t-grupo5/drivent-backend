@@ -12,3 +12,13 @@ export async function singInPost(req: Request, res: Response) {
     return res.status(httpStatus.UNAUTHORIZED).send({});
   }
 }
+
+export async function signInGitHub(req: Request, res: Response) {
+  const { code } = req.query;
+  try {
+    const result = await authenticationService.signInWithGitHub(code as string);
+    console.log (result);
+  } catch (error) {
+    return res.status(httpStatus.UNAUTHORIZED).send({});  
+  }
+}
