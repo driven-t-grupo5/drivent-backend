@@ -19,7 +19,7 @@ model User {
   Session    Session[]
   Enrollment Enrollment[]
   Booking    Booking[]
-  Activity   Acticity[]
+  Activity   Activity[]
 }
 
 model Session {
@@ -143,10 +143,10 @@ model Booking {
 model Venue {
   id       Int        @id @default(autoincrement())
   name     String
-  Acticity Acticity[]
+  Acticity Activity[]
 }
 
-model Acticity {
+model Activity {
   id        Int      @id @default(autoincrement())
   name      String
   venue     Venue    @relation(fields: [venueId], references: [id])

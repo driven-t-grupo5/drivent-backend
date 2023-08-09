@@ -119,7 +119,7 @@ async function createActivities() {
   ];
 
   await prisma.venue.createMany({ data: venuesData });
-  return prisma.acticity.createMany({ data: activitiesData });
+  return prisma.activity.createMany({ data: activitiesData });
 }
 
 interface CreateScenarioParams {
