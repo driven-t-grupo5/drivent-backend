@@ -151,9 +151,8 @@ model Acticity {
   name      String
   venue     Venue    @relation(fields: [venueId], references: [id])
   venueId   Int
-  date      DateTime
-  startTime DateTime
-  endTime   DateTime
+  startDate DateTime
+  endDate   DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
   User      User?    @relation(fields: [userId], references: [id])
