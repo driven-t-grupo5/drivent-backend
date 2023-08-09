@@ -142,7 +142,7 @@ model Booking {
 
 model Venue {
   id       Int        @id @default(autoincrement())
-  name     String
+  name     String     @unique
   Acticity Activity[]
 }
 
