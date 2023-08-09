@@ -71,7 +71,24 @@ interface CreateScenarioParams {
 
 async function createScenario(options: CreateScenarioParams) {
   const { email, isRemote, includesHotel } = options;
-  const price = faker.datatype.number();
+
+  const ticketPricesAndNames = [
+    { isRemote: false, includesHotel: false, name: 'Presencial Sem Hotel', price: 250 },
+    { isRemote: false, includesHotel: true, name: 'Presencial Com Hotel', price: 200 },
+    { isRemote: true, includesHotel: false, name: 'Remoto', price: 100 },
+  ];
+
+  const ticket = ticketPricesAndNames.find(
+    (item) => item.isRemote === isRemote && item.includesHotel === includesHotel,
+  );
+
+  if (!ticket) {
+    return;
+  }
+
+  const price = ticket.price;
+  const name = ticket.name;
+
   console.log('\nCreating user:');
   console.log({ ...options, password: 'password' });
 
@@ -103,7 +120,7 @@ async function createScenario(options: CreateScenarioParams) {
                   price,
                   includesHotel,
                   isRemote,
-                  name: faker.name.findName(),
+                  name,
                 },
               },
               Payment: {
