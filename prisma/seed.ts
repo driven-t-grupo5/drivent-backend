@@ -63,6 +63,65 @@ async function createHotels() {
   return Promise.all(hotels.map((data) => prisma.hotel.create({ data })));
 }
 
+async function createActivities() {
+  console.log('Creating activities...');
+
+  const venuesData = [{ name: 'Auditório Principal' }, { name: 'Auditório Lateral' }, { name: 'Sala de Workshop' }];
+  const activitiesData = [
+    {
+      name: 'Atividade 01',
+      startDate: '2023-10-22T09:00:00.000Z',
+      endDate: '2023-10-22T10:00:00.000Z',
+      venueId: 1,
+    },
+    {
+      name: 'Atividade 02',
+      startDate: '2023-10-22T10:00:00.000Z',
+      endDate: '2023-10-22T11:00:00.000Z',
+      venueId: 1,
+    },
+    {
+      name: 'Atividade 03',
+      startDate: '2023-10-22T09:00:00.000Z',
+      endDate: '2023-10-22T11:00:00.000Z',
+      venueId: 2,
+    },
+    {
+      name: 'Atividade 04',
+      startDate: '2023-10-22T09:00:00.000Z',
+      endDate: '2023-10-22T10:00:00.000Z',
+      venueId: 3,
+    },
+    {
+      name: 'Atividade 05',
+      startDate: '2023-10-22T10:00:00.000Z',
+      endDate: '2023-10-22T11:00:00.000Z',
+      venueId: 3,
+    },
+    {
+      name: 'Atividade 06',
+      startDate: '2023-10-23T09:00:00.000Z',
+      endDate: '2023-10-23T10:30:00.000Z',
+      venueId: 1,
+    },
+    {
+      name: 'Atividade 07',
+      startDate: '2023-10-22T09:00:00.000Z',
+      endDate: '2023-10-22T10:00:00.000Z',
+      venueId: 2,
+    },
+    {
+      name: 'Atividade 08',
+      startDate: '2023-10-22T10:00:00.000Z',
+      endDate: '2023-10-22T11:00:00.000Z',
+      venueId: 2,
+    },
+  ];
+
+  await prisma.venue.createMany({ data: venuesData });
+  return prisma.acticity.createMany({ data: activitiesData });
+}
+
 interface CreateScenarioParams {
   email: string;
   isRemote: boolean;
@@ -71,7 +130,24 @@ interface CreateScenarioParams {
 
 async function createScenario(options: CreateScenarioParams) {
   const { email, isRemote, includesHotel } = options;
-  const price = faker.datatype.number();
+
+  const ticketPricesAndNames = [
+    { isRemote: false, includesHotel: false, name: 'Presencial Sem Hotel', price: 250 },
+    { isRemote: false, includesHotel: true, name: 'Presencial Com Hotel', price: 200 },
+    { isRemote: true, includesHotel: false, name: 'Remoto', price: 100 },
+  ];
+
+  const ticket = ticketPricesAndNames.find(
+    (item) => item.isRemote === isRemote && item.includesHotel === includesHotel,
+  );
+
+  if (!ticket) {
+    return;
+  }
+
+  const price = ticket.price;
+  const name = ticket.name;
+
   console.log('\nCreating user:');
   console.log({ ...options, password: 'password' });
 
@@ -103,7 +179,7 @@ async function createScenario(options: CreateScenarioParams) {
                   price,
                   includesHotel,
                   isRemote,
-                  name: faker.name.findName(),
+                  name,
                 },
               },
               Payment: {
@@ -125,6 +201,7 @@ async function main() {
   await Promise.all([
     createEvent(),
     createHotels(),
+    createActivities(),
     createScenario({ email: 'ticketonly@email.com', isRemote: false, includesHotel: false }),
     createScenario({ email: 'hotel@email.com', isRemote: false, includesHotel: true }),
     createScenario({ email: 'remote@email.com', isRemote: true, includesHotel: false }),
