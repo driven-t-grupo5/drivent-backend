@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { invalidCredentialsError } from "./errors";
 import axios from "axios";
-import qs from "query-string";
+import parseQueryString from "@/utils/parseQueryString";
 
 async function signIn(params: SignInParams): Promise<SignInResult> {
   const { email, password } = params;
@@ -40,7 +40,7 @@ async function signInWithGitHub(code: string) {
       }
     });
 
-    const { access_token } = qs.parse(data);
+    const { access_token } = parseQueryString(data);
     return access_token;
   }catch (error) {
     return error.message;
