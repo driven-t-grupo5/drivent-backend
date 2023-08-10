@@ -17,7 +17,7 @@ export async function signInGitHub(req: Request, res: Response) {
   const { code } = req.query;
   try {
     const result = await authenticationService.signInWithGitHub(code as string);
-    console.log (result);
+    return res.status(httpStatus.OK).send(result);
   } catch (error) {
     return res.status(httpStatus.UNAUTHORIZED).send({});  
   }

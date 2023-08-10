@@ -6,17 +6,20 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { invalidCredentialsError } from "./errors";
 import axios from "axios";
-import qs from "query-string";
+import parseQueryString from "@/utils/parseQueryString";
+import crypto from "crypto";
+import userService from "../users-service"; 
 
 async function signIn(params: SignInParams): Promise<SignInResult> {
   const { email, password } = params;
 
   const user = await getUserOrFail(email);
-
+  console.log("PARAMS ", params);
+  console.log("USER DENTRO DO SIGNIN ",  user);
   await validatePasswordOrFail(password, user.password);
 
   const token = await createSession(user.id);
-
+  console.log ("token ", token);
   return {
     user: exclude(user, "password"),
     token
@@ -28,20 +31,23 @@ async function signInWithGitHub(code: string) {
   const { REDIRECT_URL, CLIENT_ID, CLIENT_SECRET } = process.env;
   const body = {
     code,
-    grant_type: "authorization_code", 
+    grant_type: "authorization_code",
     redirect_uri: REDIRECT_URL,
     client_id: CLIENT_ID,
-    client_secret: CLIENT_SECRET
+    client_secret: CLIENT_SECRET,
+    scope: ["user:email"],
   };
   try {
-    const { data } = await axios.post(GITHUB_ACESS_TOKEN_URL, body, {
+    const response = await axios.post(GITHUB_ACESS_TOKEN_URL, body, {
       headers: {
         "Content-type": "application/json"
       }
     });
-
-    const { access_token } = qs.parse(data);
-    return access_token;
+    const { access_token } = parseQueryString(response.data);
+    if(access_token) {
+      const result = await fetchUser(access_token);
+      return result;
+    }
   }catch (error) {
     return error.message;
   }
@@ -54,11 +60,29 @@ async function fetchUser(token: string) {
         Authorization: `Bearer ${token}`
       } 
     });
-
-    return response.data;
+    const user_password = generateStrongPassword();
+    const createdUser = await userService.createUser({ email: response.data.email, password: user_password });
+    
+    if (createdUser) {
+      const logged_user = await signIn({ email: createdUser.email, password: user_password });
+      return logged_user;
+    }
   } catch (error) {
     return error;
   }
+}
+
+function generateStrongPassword(length = 12) {
+  const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
+  const randomBytes = crypto.randomBytes(length);
+    
+  let password = "";
+  for (let i = 0; i < length; i++) {
+    const randomIndex = randomBytes[i] % characters.length;
+    password += characters.charAt(randomIndex);
+  }
+
+  return password;
 }
 
 async function getUserOrFail(email: string): Promise<GetUserOrFailResult> {
