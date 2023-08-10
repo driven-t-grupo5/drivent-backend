@@ -151,12 +151,12 @@ model Activity {
   name      String
   venue     Venue    @relation(fields: [venueId], references: [id])
   venueId   Int
+  capacity  Int
   startDate DateTime
   endDate   DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
-  User      User?    @relation(fields: [userId], references: [id])
-  userId    Int?
+  users     User[]
 
   @@unique([venueId, name])
 }
