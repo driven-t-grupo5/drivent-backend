@@ -1,3 +1,4 @@
+/*
 import { AuthenticatedRequest } from "@/middlewares";
 import { Response } from "express";
 import httpStatus from "http-status";
@@ -52,3 +53,5 @@ export async function getVenues(req: AuthenticatedRequest, res: Response) {
 //Posts
 // export async function createActivity(req: AuthenticatedRequest, res: Response) {
 // };
+  */
+ 

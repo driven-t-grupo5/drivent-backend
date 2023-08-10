@@ -1,3 +1,4 @@
+/*
 import activityRepository from "@/repositories/activity-repository";
 import enrollmentRepository from "../../repositories/enrollment-repository";
 import ticketRepository from "../../repositories/ticket-repository";
@@ -23,7 +24,7 @@ const activityService = {
         throw new Error('403 Forbidden'); // Lança erro 403 caso o ingresso não inclua hospedagem
       }
     },
-    
+
     // Obtém uma atividade para um usuário
     async getActivity(userId: number) {
       await this.validActivities(userId);
@@ -70,5 +71,5 @@ const activityService = {
   // async createActivity(userId: number, hotelId: number) {}
 
   };
-
 export default activityService;
+*/

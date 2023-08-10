@@ -1,6 +1,7 @@
+/*
 import { Router } from "express";
 import { authenticateToken } from "@/middlewares";
-import { getActivity, getActivityByDate, getDates, getVenues, /*createActivity*/ } from "../controllers/activity-controller";
+import { getActivity, getActivityByDate, getDates, getVenues, createActivity} from "../controllers/activity-controller";
 
 const activityRouter = Router();
 
@@ -15,3 +16,5 @@ activityRouter
   // .post("", authenticateToken, createActivity);
 
 export { activityRouter };
+*/
+
