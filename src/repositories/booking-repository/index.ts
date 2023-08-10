@@ -1,8 +1,8 @@
-import { prisma } from '@/config';
-import { Booking } from '@prisma/client';
+import { prisma } from "@/config";
+import { Booking } from "@prisma/client";
 
-type CreateParams = Omit<Booking, 'id' | 'createdAt' | 'updatedAt'>;
-type UpdateParams = Omit<Booking, 'createdAt' | 'updatedAt'>;
+type CreateParams = Omit<Booking, "id" | "createdAt" | "updatedAt">;
+type UpdateParams = Omit<Booking, "createdAt" | "updatedAt">;
 
 async function create({ roomId, userId }: CreateParams) {
   return prisma.booking.create({
