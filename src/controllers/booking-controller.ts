@@ -1,4 +1,4 @@
-import { AuthenticatedRequest } from '@/middlewares';
+import { AuthenticatedRequest } from '@/protocols';
 import { Response } from 'express';
 import httpStatus from 'http-status';
 import bookingService from '@/services/booking-service';

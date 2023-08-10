@@ -1,3 +1,11 @@
+import { Request } from "express";
+
+export type AuthenticatedRequest = Request & JWTPayload;
+
+export type JWTPayload = {
+  userId: number;
+};
+
 export type ApplicationError = {
   name: string;
   message: string;
@@ -30,3 +38,21 @@ export type RequestError = {
   name: string,
   message: string,
 };
+
+export type GetActivitiesByDateParams = {
+  year: string,
+  month: string,
+  day: string,
+};
+
+export interface GetActivitiesByDateRequest extends AuthenticatedRequest {
+  params: GetActivitiesByDateParams
+}
+
+export type EnrollUserToActivityParams = {
+  activityId: string,
+};
+
+export interface EnrollUserToActivityRequest extends AuthenticatedRequest {
+  params: EnrollUserToActivityParams
+}

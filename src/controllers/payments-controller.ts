@@ -1,7 +1,7 @@
-import { AuthenticatedRequest } from "@/middlewares";
-import paymentService from "@/services/payments-service";
-import { Response } from "express";
-import httpStatus from "http-status";
+import { AuthenticatedRequest } from '@/protocols';
+import paymentService from '@/services/payments-service';
+import { Response } from 'express';
+import httpStatus from 'http-status';
 
 export async function getPaymentByTicketId(req: AuthenticatedRequest, res: Response) {
   try {
@@ -18,7 +18,7 @@ export async function getPaymentByTicketId(req: AuthenticatedRequest, res: Respo
     }
     return res.status(httpStatus.OK).send(payment);
   } catch (error) {
-    if (error.name === "UnauthorizedError") {
+    if (error.name === 'UnauthorizedError') {
       return res.sendStatus(httpStatus.UNAUTHORIZED);
     }
     return res.sendStatus(httpStatus.NOT_FOUND);
@@ -28,10 +28,7 @@ export async function getPaymentByTicketId(req: AuthenticatedRequest, res: Respo
 export async function paymentProcess(req: AuthenticatedRequest, res: Response) {
   try {
     const { userId } = req;
-    const {
-      ticketId,
-      cardData,
-    } = req.body;
+    const { ticketId, cardData } = req.body;
 
     if (!ticketId || !cardData) {
       return res.sendStatus(httpStatus.BAD_REQUEST);
@@ -44,7 +41,7 @@ export async function paymentProcess(req: AuthenticatedRequest, res: Response) {
 
     return res.status(httpStatus.OK).send(payment);
   } catch (error) {
-    if (error.name === "UnauthorizedError") {
+    if (error.name === 'UnauthorizedError') {
       return res.sendStatus(httpStatus.UNAUTHORIZED);
     }
     return res.sendStatus(httpStatus.NOT_FOUND);

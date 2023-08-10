@@ -1,33 +1,43 @@
-import { ApplicationError } from "@/protocols";
-import { Request, Response } from "express";
-import httpStatus from "http-status";
+import { ApplicationError } from '@/protocols';
+import { ResponseError } from '@/errors/common';
+import { NextFunction, Request, Response } from 'express';
+import httpStatus from 'http-status';
 
-export function handleApplicationErrors(err: ApplicationError | Error, _req: Request, res: Response) {
-  if (err.name === "CannotEnrollBeforeStartDateError") {
+export function handleApplicationErrors(
+  err: ApplicationError | ResponseError | Error,
+  _req: Request,
+  res: Response,
+  _next: NextFunction,
+) {
+  if (err instanceof ResponseError) {
+    return res.status(err.responseStatusCode).send({ message: err.message });
+  }
+
+  if (err.name === 'CannotEnrollBeforeStartDateError') {
     return res.status(httpStatus.BAD_REQUEST).send({
       message: err.message,
     });
   }
 
-  if (err.name === "ConflictError" || err.name === "DuplicatedEmailError") {
+  if (err.name === 'ConflictError' || err.name === 'DuplicatedEmailError') {
     return res.status(httpStatus.CONFLICT).send({
       message: err.message,
     });
   }
 
-  if (err.name === "InvalidCredentialsError") {
+  if (err.name === 'InvalidCredentialsError') {
     return res.status(httpStatus.UNAUTHORIZED).send({
       message: err.message,
     });
   }
 
-  if (err.name === "UnauthorizedError") {
+  if (err.name === 'UnauthorizedError') {
     return res.status(httpStatus.UNAUTHORIZED).send({
       message: err.message,
     });
   }
 
-  if (err.name === "NotFoundError") {
+  if (err.name === 'NotFoundError') {
     return res.status(httpStatus.NOT_FOUND).send({
       message: err.message,
     });
@@ -36,7 +46,7 @@ export function handleApplicationErrors(err: ApplicationError | Error, _req: Req
   /* eslint-disable-next-line no-console */
   console.error(err.name);
   res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
-    error: "InternalServerError",
-    message: "Internal Server Error",
+    error: 'InternalServerError',
+    message: 'Internal Server Error',
   });
 }
