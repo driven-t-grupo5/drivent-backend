@@ -7,19 +7,16 @@ import jwt from "jsonwebtoken";
 import { invalidCredentialsError } from "./errors";
 import axios from "axios";
 import parseQueryString from "@/utils/parseQueryString";
-import crypto from "crypto";
+import crypto, { verify } from "crypto";
 import userService from "../users-service"; 
 
 async function signIn(params: SignInParams): Promise<SignInResult> {
   const { email, password } = params;
 
   const user = await getUserOrFail(email);
-  console.log("PARAMS ", params);
-  console.log("USER DENTRO DO SIGNIN ",  user);
   await validatePasswordOrFail(password, user.password);
 
   const token = await createSession(user.id);
-  console.log ("token ", token);
   return {
     user: exclude(user, "password"),
     token
@@ -29,13 +26,13 @@ async function signIn(params: SignInParams): Promise<SignInResult> {
 async function signInWithGitHub(code: string) {
   const  GITHUB_ACESS_TOKEN_URL = "https://github.com/login/oauth/access_token";
   const { REDIRECT_URL, CLIENT_ID, CLIENT_SECRET } = process.env;
+  console.log("code", code);
   const body = {
     code,
     grant_type: "authorization_code",
     redirect_uri: REDIRECT_URL,
     client_id: CLIENT_ID,
     client_secret: CLIENT_SECRET,
-    scope: ["user:email"],
   };
   try {
     const response = await axios.post(GITHUB_ACESS_TOKEN_URL, body, {
@@ -43,6 +40,7 @@ async function signInWithGitHub(code: string) {
         "Content-type": "application/json"
       }
     });
+    console.log("RESPONSE DA SIGNINWITHGIT", response);
     const { access_token } = parseQueryString(response.data);
     if(access_token) {
       const result = await fetchUser(access_token);
@@ -54,15 +52,33 @@ async function signInWithGitHub(code: string) {
 }
 
 async function fetchUser(token: string) {
+  let createdUser = null;
   try {
     const response = await axios.get("http://api.github.com/user", {
       headers: {
         Authorization: `Bearer ${token}`
       } 
     });
+    console.log("response na fetchUser", response);
     const user_password = generateStrongPassword();
-    const createdUser = await userService.createUser({ email: response.data.email, password: user_password });
-    
+    const userAlreadyRegistered = await userRepository.findByEmail(response.data.email);
+
+    if (userAlreadyRegistered) {
+      const token = await createSession(userAlreadyRegistered.id);
+
+      const userObjct = {
+        user: {
+          id: userAlreadyRegistered.id,
+          email: userAlreadyRegistered.email
+        },
+        token: token
+      };
+      console.log("SESSÃO CRIADA!", userObjct);
+      return userObjct;
+    }
+    else {
+      createdUser = await userService.createUser({ email: response.data.email, password: user_password });
+    }
     if (createdUser) {
       const logged_user = await signIn({ email: createdUser.email, password: user_password });
       return logged_user;
