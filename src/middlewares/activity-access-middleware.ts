@@ -7,7 +7,7 @@ import ForbiddenError from '@/errors/forbidden-error';
 export async function validateActivityAccess(req: AuthenticatedRequest, _res: Response, next: NextFunction) {
   const user = await prisma.user.findUnique({
     where: { id: req.userId },
-    include: { Enrollment: { include: { Ticket: { include: { TicketType: true } } } } },
+    include: { Enrollment: { include: { Ticket: { include: { TicketType: true } } } }, Booking: true },
   });
 
   if (
@@ -20,6 +20,10 @@ export async function validateActivityAccess(req: AuthenticatedRequest, _res: Re
 
   if (user.Enrollment[0].Ticket[0].TicketType.isRemote || !user.Enrollment[0].Ticket[0].TicketType.includesHotel) {
     throw new ForbiddenError('Ingressos que não incluem hospedagem dão acesso a todas as atividades');
+  }
+
+  if (user.Booking.length === 0) {
+    throw new ForbiddenError('É nessesário ter reservado um quarto para escolher atividades');
   }
 
   next();
