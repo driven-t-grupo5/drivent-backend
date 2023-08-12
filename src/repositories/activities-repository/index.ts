@@ -27,7 +27,7 @@ const activitiesRepository = {
     return includeAvailableTickets(activities);
   },
 
-  async getActivityById(activityId: number) {
+  async getActivityById(activityId: number, { includeSimultaneousActivities = true } = {}) {
     const activity = await prisma.activity.findUnique({
       where: { id: activityId },
       include: { venue: true, users: { select: { id: true } } },
@@ -38,6 +38,16 @@ const activitiesRepository = {
     }
 
     const availableTickets = activity.capacity - activity.users.length;
+
+    if (includeSimultaneousActivities) {
+      const simultaneousActivities = await prisma.activity.findMany({
+        where: { id: { not: { equals: activity.id } }, startDate: { lt: activity.endDate, gt: activity.startDate } },
+        include: { venue: true, users: { select: { id: true } } },
+      });
+
+      return { simultaneousActivities, activity: { ...activity, availableTickets } };
+    }
+
     return { ...activity, availableTickets };
   },
 

@@ -1,4 +1,4 @@
-import { ConflictError, NotFoundError, conflictError, notFoundError } from '@/errors';
+import { ConflictError, NotFoundError } from '@/errors';
 import ForbiddenError from '@/errors/forbidden-error';
 import { GetActivitiesByDateParams } from '@/protocols';
 import activitiesRepository from '@/repositories/activities-repository';
@@ -14,37 +14,41 @@ function throwNotFoundIfEmpty<T>(list: Array<T>, message: string) {
 const activitiesService = {
   async getActivities() {
     const activities = await activitiesRepository.getActivities();
-    return throwNotFoundIfEmpty(activities, 'No activities found');
+    return throwNotFoundIfEmpty(activities, 'Nenhuma atividade encontrada');
   },
 
   async getActivityByDate(params: GetActivitiesByDateParams) {
     const activities = await activitiesRepository.getActivitiesByDate(params);
-    return throwNotFoundIfEmpty(activities, 'No activities found');
+    return throwNotFoundIfEmpty(activities, 'Nenhuma atividade encontrada');
   },
 
   async getDates() {
     const dates = await activitiesRepository.getDates();
-    return throwNotFoundIfEmpty(dates, 'No dates found');
+    return throwNotFoundIfEmpty(dates, 'Nenhuma data encontrada');
   },
 
   async getVenues() {
     const venues = await activitiesRepository.getVenues();
-    return throwNotFoundIfEmpty(venues, 'No venues found');
+    return throwNotFoundIfEmpty(venues, 'Nenhum local encontrado');
   },
 
   async enrollUserToActivity(userId: number, activityId: number) {
-    const activity = await activitiesRepository.getActivityById(activityId);
+    const { activity, simultaneousActivities } = await activitiesRepository.getActivityById(activityId);
 
     if (!activity) {
-      throw new NotFoundError('No activity found with this id');
+      throw new NotFoundError('Nenhuma atividade encontrada com esse id');
     }
 
     if (activity.availableTickets === 0) {
-      throw new ForbiddenError('No more seats in this activity');
+      throw new ForbiddenError('Atividade já com capacidade máxima');
     }
 
     if (activity.users.find((user) => user.id === userId)) {
-      throw new ConflictError('User already enrolled to this activity');
+      throw new ConflictError('Usuário já cadastrado nessa atividade');
+    }
+
+    if (simultaneousActivities.find((activity) => activity.users.find((user) => user.id === userId))) {
+      throw new ConflictError('Usuário já cadastrado em atividade simultânea');
     }
 
     return activitiesRepository.enrollUserToActivity(userId, activityId);
