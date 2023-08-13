@@ -41,7 +41,13 @@ const activitiesRepository = {
 
     if (includeSimultaneousActivities) {
       const simultaneousActivities = await prisma.activity.findMany({
-        where: { id: { not: { equals: activity.id } }, startDate: { lt: activity.endDate, gt: activity.startDate } },
+        where: {
+          id: { not: { equals: activity.id } },
+          OR: [
+            { startDate: { lt: activity.endDate, gt: activity.startDate } },
+            { endDate: { lt: activity.endDate, gt: activity.startDate } },
+          ],
+        },
         include: { venue: true, users: { select: { id: true } } },
       });
 
