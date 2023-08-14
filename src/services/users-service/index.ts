@@ -23,6 +23,10 @@ async function validateUniqueEmailOrFail(email: string) {
     throw duplicatedEmailError();
   }
 }
+async function fetchUserByemail(email: string) {
+  const userData = await userRepository.findByEmail(email);
+  return userData;
+}
 
 async function canEnrollOrFail() {
   const canEnroll = await eventsService.isCurrentEventActive();
@@ -35,6 +39,7 @@ export type CreateUserParams = Pick<User, "email" | "password">;
 
 const userService = {
   createUser,
+  fetchUserByemail,
 };
 
 export * from "./errors";
